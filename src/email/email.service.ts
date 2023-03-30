@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from 'src/users/users.repository';
+import { UserRepository } from 'src/email/users.repository';
 import { EmailApi } from "./email.api";
-
-// interface EmailOptions {
-//     to: string;
-//     subject: string;
-//     html: string;
-// }
 
 @Injectable()
 export class EmailService {
