@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UserInfo } from './UserInfo';
 import { EmailService } from 'src/email/email.service';
 import * as uuid from 'uuid';
-import { UserRepository } from '../email/users.repository';
-
+import { UserEntity } from './dto/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class UsersService {
 
     constructor(
-        private userRepository: UserRepository,
-        private emailService: EmailService
+        private emailService: EmailService,
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
     ) { }
 
     // 회원가입 로직
@@ -25,7 +25,9 @@ export class UsersService {
     }
 
     async verifyEmail(signupVerifyToken: string): Promise<void> {
-        const user: any = await this.userRepository.findOneByToken(signupVerifyToken);
+        const user: any = await this.userRepository.findOne({
+            where: {signupVerifyToken: signupVerifyToken}
+        });
         if(user == null)
             throw new Error("해당 토큰을 가진 유저는 없습니다.");
         
@@ -33,8 +35,10 @@ export class UsersService {
         await this.userRepository.save(user);
     }
     
-    async login(email: string, password: string): Promise<string> {
-        const user = await this.userRepository.findOne(email);
+    async login(email: string, password: string) {
+        const user = await this.userRepository.findOne({
+            where: {email: email}
+        });
 
         if(user == null)
             throw new Error("로그인 실패 - 잘못된 이메일");
@@ -48,24 +52,29 @@ export class UsersService {
         return user;
     }
 
-    async getUserInfo(userId: number): Promise<string> {
-        const user = await this.userRepository.findOneById(userId);
+    async getUserInfo(userId: number) {
+        const user = await this.userRepository.findOne({
+            where: {id: userId}
+        });
         return user;
     }
 
     async checkUserExists(email: string) {
-        const user = await this.userRepository.findOne(email);
+        const user = await this.userRepository.findOne({
+            where: {email: email}
+        });
         console.log(user);
         if(user != null)
             throw Error("이미 존재하는 유저 입니다.");
+        return user;
     }
 
-    async saveUser(name: string, email: string, password: string, uniqueKey: string){
-        const user = new UserInfo();
+    private async saveUser(name: string, email: string, password: string, uniqueKey: string){
+        const user = new UserEntity();
         user.name = name;
         user.email = email;
         user.password = password;
-        user.uniqueKey = uniqueKey;
+        user.signupVerifyToken = uniqueKey;
         user.isDone = false
         await this.userRepository.save(user);
     }
