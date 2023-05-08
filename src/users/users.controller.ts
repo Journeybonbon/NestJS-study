@@ -5,12 +5,24 @@ import { UserLoginDto } from "./dto/user-login.dto";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { UsersService } from "./users.service";
 import { UserEntity } from "./dto/user.entity";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { UserInfo } from "./UserInfo";
 
+
+@ApiBearerAuth()
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Post()
+    @ApiOperation({ summary: 'Create User'})
+    @ApiResponse({
+        status: 201,
+        description: 'Created',
+        type: CreateUserDto
+    })
+    @ApiResponse({ status:403, description: 'Forbidden.'})
     async createUser(@Body(ValidationPipe) dto: CreateUserDto): Promise<void> {
         const { name, email, password } = dto;
         await this.usersService.createUser(name, email, password);
