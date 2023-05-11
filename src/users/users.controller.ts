@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, UseGuards} from "@nestjs/common";
 import { Headers, ValidationPipe } from "@nestjs/common";
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserLoginDto } from "./dto/user-login.dto";
@@ -6,6 +6,7 @@ import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { UsersService } from "./users.service";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "src/auth/auth.service";
+import { AuthGuard } from "src/auth/auth.guard";
 
 
 
@@ -45,10 +46,9 @@ export class UsersController {
         return await this.usersService.login(email, password);
     }
 
+    @UseGuards(AuthGuard)
     @Get('/:id')
     async getUserInfo(@Headers() headers: any, @Param('id', ValidationPipe) userId: number){
-        const jwtString = headers.authorization.split('Bearer ')[1];
-        this.authService.verify(jwtString);
         return await this.usersService.getUserInfo(userId);
     }
 
