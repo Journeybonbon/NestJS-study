@@ -70,7 +70,16 @@ export class UsersService {
         const user = await this.userRepository.findOne({
             where: {id: userId}
         });
-        return user;
+        if (user == null){
+            throw new Error("존재하지 않는 유저입니다.")
+        }
+
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            isDone: user.isDone,
+        };
     }
 
     async checkUserExists(email: string) {

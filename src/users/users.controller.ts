@@ -1,19 +1,22 @@
 import { Body, Controller, Get, Param, Post, Query} from "@nestjs/common";
-import { ValidationPipe } from "@nestjs/common";
+import { Headers, ValidationPipe } from "@nestjs/common";
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserLoginDto } from "./dto/user-login.dto";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { UsersService } from "./users.service";
-import { UserEntity } from "./dto/user.entity";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { UserInfo } from "./UserInfo";
+import { AuthService } from "src/auth/auth.service";
+
 
 
 @ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-    constructor(private usersService: UsersService) {}
+    constructor(
+        private usersService: UsersService,
+        private authService: AuthService,
+        ) {}
 
     @Post()
     @ApiOperation({ summary: 'Create User'})
@@ -43,7 +46,9 @@ export class UsersController {
     }
 
     @Get('/:id')
-    async getUserInfo(@Param('id', ValidationPipe) userId: number): Promise<UserEntity> {
+    async getUserInfo(@Headers() headers: any, @Param('id', ValidationPipe) userId: number){
+        const jwtString = headers.authorization.split('Bearer ')[1];
+        this.authService.verify(jwtString);
         return await this.usersService.getUserInfo(userId);
     }
 
