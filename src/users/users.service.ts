@@ -4,12 +4,14 @@ import * as uuid from 'uuid';
 import { UserEntity } from './dto/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthService } from 'src/auth/auth.service';
 @Injectable()
 export class UsersService {
 
     constructor(
         private emailService: EmailService,
-        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+        private authService: AuthService
     ) { }
 
     // 회원가입 로직
@@ -24,7 +26,7 @@ export class UsersService {
         
     }
 
-    async verifyEmail(signupVerifyToken: string): Promise<void> {
+    async verifyEmail(signupVerifyToken: string): Promise<string> {
         const user: any = await this.userRepository.findOne({
             where: {signupVerifyToken: signupVerifyToken}
         });
@@ -32,7 +34,13 @@ export class UsersService {
             throw new Error("해당 토큰을 가진 유저는 없습니다.");
         
         user.isDone = true;
+
         await this.userRepository.save(user);
+        return this.authService.login({
+            id: user.id,
+            name: user.name,
+            email: user.email
+        });
     }
     
     async login(email: string, password: string) {

@@ -4,9 +4,10 @@ import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/dto/user.entity';
-import { LoggerMiddleware } from './logger.middleware';
-import { Logger2Middleware } from './logger2.middleware';
+import { LoggerMiddleware } from './logger/logger.middleware';
+import { Logger2Middleware } from './logger/logger2.middleware';
 import { UsersController } from './users/users.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { UsersController } from './users/users.controller';
     database: "typeorm",
     entities: [UserEntity],
     synchronize: process.env.DATABASE_SYNCHRONIZE == 'true',
-  })
+  }),
+  AuthModule
   ]
 })
 export class AppModule implements NestModule {
