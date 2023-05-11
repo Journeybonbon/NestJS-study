@@ -4,9 +4,10 @@ import authConfig from 'src/config/authConfig';
 import { ConfigType } from "@nestjs/config";
 
 interface User{
-    id: string;
+    id: number;
     name: string;
     email: string;
+    isDone: boolean;
 }
 
 @Injectable()

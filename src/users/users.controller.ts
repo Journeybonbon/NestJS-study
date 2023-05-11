@@ -36,7 +36,7 @@ export class UsersController {
     }
 
     @Post('/login')
-    async login(@Body() dto: UserLoginDto): Promise<UserEntity> {
+    async login(@Body() dto: UserLoginDto){
         const { email, password } = dto;
 
         return await this.usersService.login(email, password);

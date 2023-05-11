@@ -39,7 +39,8 @@ export class UsersService {
         return this.authService.login({
             id: user.id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            isDone: user.isDone
         });
     }
     
@@ -49,7 +50,7 @@ export class UsersService {
         });
 
         if(user == null)
-            throw new Error("로그인 실패 - 잘못된 이메일");
+            throw new Error("로그인 실패 - 존재하지 않는 유저");
 
         if(user.isDone == false)
             throw new Error("로그인 실패 - 이메일 미인증");
@@ -57,7 +58,12 @@ export class UsersService {
         if(user.password != password)
             throw new Error("로그인 실패 - 잘못된 비밀번호");
 
-        return user;
+        return this.authService.login({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            isDone: user.isDone
+        })
     }
 
     async getUserInfo(userId: number) {
